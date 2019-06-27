@@ -6,29 +6,11 @@
                 "cryptocurrencyaddr.cc"
             ],
             'conditions': [
-                ['OS=="linux"',
-                  {
-                    'link_settings': {
-                      'libraries': [
-                        '-lgmp'
-                      ]
-                    }
-                  }
-                ],
-                ['OS=="mac"',
-                  {
-                    'link_settings': {
-                      'libraries': [
-                        '-lgmp'
-                      ]
-                    }
-                  }
-                ],
                 ['OS=="win"',
                   {
                     'link_settings': {
                       'libraries': [
-                        '-lgmp.lib'
+                        '-lws2_32.lib'
                       ],
                     }
                   }

@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <endian.h>
+#include "portable_endian.h"
 
 using namespace node;
 using namespace v8;
@@ -17,8 +17,14 @@ using namespace v8;
 #define DECLARE_FUNC(x) \
     void x(const FunctionCallbackInfo<Value>& args)
 
+#if NODE_MAJOR_VERSION >= 12
+#define DECLARE_SCOPE \
+    v8::Isolate* isolate = args.GetIsolate(); \
+    Local<Context> currentContext = isolate->GetCurrentContext();
+#else
 #define DECLARE_SCOPE \
     v8::Isolate* isolate = args.GetIsolate();
+#endif
 
 #define SET_BUFFER_RETURN(x, len) \
     args.GetReturnValue().Set(Buffer::Copy(isolate, x, len).ToLocalChecked());
@@ -200,11 +206,16 @@ DECLARE_FUNC(addressToScript) {
   if (args.Length() < 3)
       RETURN_EXCEPT("You must provide address, isScript and isWitness.");
 
+#if NODE_MAJOR_VERSION >= 12
+  String::Utf8Value target(isolate, args[0]->ToString(isolate));
+  bool isScript = args[1]->BooleanValue(isolate);
+  bool isWitness = args[2]->BooleanValue(isolate);
+#else
   String::Utf8Value target(args[0]->ToString());
-  const char *input = *target;
   bool isScript = args[1]->BooleanValue();
   bool isWitness = args[2]->BooleanValue();
-
+#endif
+  const char *input = *target;
   char output[255];
 
   SET_BUFFER_RETURN(output, address_to_txn(output, input, isScript, isWitness));
